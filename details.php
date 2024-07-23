@@ -14,7 +14,7 @@ include("includes/main.php");
 
 $product_id = @$_GET['pro_id'];
 
-$get_product = "select * from products where product_url='$product_id'";
+$get_product = "select * from products where product_id='$product_id'";
 
 $run_product = mysqli_query($con,$get_product);
 
@@ -67,7 +67,7 @@ else{
 
 $product_label = "
 
-<a class='label sale' href='#' style='color:black;'>
+<a class='label sale' href='details.php?pro_id=$pro_id style='color:black;'>
 
 <div class='thelabel'>$pro_label</div>
 

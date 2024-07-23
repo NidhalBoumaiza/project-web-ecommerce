@@ -89,7 +89,7 @@ function getPro(){
 
 global $db;
 
-$get_products = "select * from products order by 1 DESC LIMIT 0,8";
+$get_products = "select * from products LIMIT 8";
 
 $run_products = mysqli_query($db,$get_products);
 

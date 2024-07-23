@@ -14,11 +14,6 @@ getProducts();
 
 break;
 
-case'getPaginator';
-
-getPaginator();
-
-break;
 
 }
 

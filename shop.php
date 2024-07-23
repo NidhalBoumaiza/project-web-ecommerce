@@ -1,61 +1,178 @@
 <?php
-
 session_start();
 
 include("includes/db.php");
 include("includes/header.php");
-include("functions/functions.php");
-include("includes/main.php");
 
 ?>
-  <!-- MAIN -->
-  <main>
-    <!-- HERO -->
-    <div class="nero">
-      <div class="nero__heading">
-        <span class="nero__bold">shop</span> AT BM
-      </div>
-      <p class="nero__text">
-      </p>
+<!-- MAIN -->
+<main>
+  <!-- HERO -->
+  <div class="nero">
+    <div class="nero__heading">
+      <span class="nero__bold">shop</span> AT BM
     </div>
-  </main>
+    <p class="nero__text">
+    </p>
+  </div>
+</main>
 
 
-<div id="content" ><!-- content Starts -->
-<div class="container" ><!-- container Starts -->
+<?php
+$db = mysqli_connect("localhost", "root", "", "ecom_store");
 
-<div class="col-md-12" ><!--- col-md-12 Starts -->
+$aMan = $aPCat = $aCat = array();
+
+function processArray($input, &$output)
+{
+  if (isset($_REQUEST[$input]) && is_array($_REQUEST[$input])) {
+    foreach ($_REQUEST[$input] as $sVal) {
+      if ((int)$sVal != 0) {
+        $output[(int)$sVal] = (int)$sVal;
+      }
+    }
+  }
+}
+
+processArray('man', $aMan);
+processArray('p_cat', $aPCat);
+processArray('cat', $aCat);
+
+function getRealUserIp()
+{
+  switch (true) {
+    case (!empty($_SERVER['HTTP_X_REAL_IP'])):
+      return $_SERVER['HTTP_X_REAL_IP'];
+    case (!empty($_SERVER['HTTP_CLIENT_IP'])):
+      return $_SERVER['HTTP_CLIENT_IP'];
+    case (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])):
+      return $_SERVER['HTTP_X_FORWARDED_FOR'];
+    default:
+      return $_SERVER['REMOTE_ADDR'];
+  }
+}
+function getProducts($db, $aMan, $aPCat, $aCat)
+{
+  $aWhere = array();
+
+  if (!empty($aMan)) {
+    $aWhere[] = "manufacturer_id IN (" . implode(",", $aMan) . ")";
+  }
+
+  if (!empty($aPCat)) {
+    $aWhere[] = "p_cat_id IN (" . implode(",", $aPCat) . ")";
+  }
+
+  if (!empty($aCat)) {
+    $aWhere[] = "cat_id IN (" . implode(",", $aCat) . ")";
+  }
+
+  $sWhere = (count($aWhere) > 0 ? ' WHERE ' . implode(' AND ', $aWhere) : '');
+
+  $query = "SELECT * FROM products $sWhere ORDER BY 1 DESC";
+  $result = mysqli_query($db, $query);
+
+  while ($row = mysqli_fetch_array($result)) {
+    $pro_id = $row['product_id'];
+    $pro_title = $row['product_title'];
+    $pro_price = $row['product_price'];
+    $pro_img1 = $row['product_img1'];
+
+    echo "
+        <div class='col-md-4 col-sm-6 center-responsive'>
+            <div class='product'>
+                <a href='details.php?pro_id=$pro_id'>
+                    <img src='admin_area/product_images/$pro_img1' class='img-responsive'>
+                </a>
+                <div class='text'>
+                    <h3><a href='details.php?pro_id=$pro_id'>$pro_title</a></h3>
+                    <p class='price'>$$pro_price</p>
+                    <p class='buttons'>
+                        <a href='details.php?pro_id=$pro_id' class='btn btn-default'>View Details</a>
+                        <a href='details.php?pro_id=$pro_id' class='btn btn-primary'>
+                            <i class='fa fa-shopping-cart'></i> Add to Cart
+                        </a>
+                    </p>
+                </div>
+            </div>
+        </div>";
+  }
+}
+?>
+
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Shop</title>
+  <link rel="stylesheet" href="styles/bootstrap.min.css">
+  <link rel="stylesheet" href="styles/style.css">
+  <script src="js/jquery.min.js"></script>
+  <script src="js/bootstrap.min.js"></script>
+</head>
+
+<body>
+
+  <div class="container">
+    <div class="row">
+
+  <script>
+    $(document).ready(function() {
+      $('.get_manufacturer, .get_p_cat, .get_cat').on('change', function() {
+        var selectedFilters = [];
+
+        $('.get_manufacturer:checked').each(function() {
+          selectedFilters.push('man[]=' + $(this).val());
+        });
+
+        $('.get_p_cat:checked').each(function() {
+          selectedFilters.push('p_cat[]=' + $(this).val());
+        });
+
+        $('.get_cat:checked').each(function() {
+          selectedFilters.push('cat[]=' + $(this).val());
+        });
+
+        window.location.href = 'shop.php?' + selectedFilters.join('&');
+      });
+    });
+  </script>
+
+</body>
+
+</html>
+<div id="content"><!-- content Starts -->
+  <div class="container"><!-- container Starts -->
+
+    <div class="col-md-12"><!--- col-md-12 Starts -->
 
 
 
-</div><!--- col-md-12 Ends -->
+    </div><!--- col-md-12 Ends -->
 
-<div class="col-md-3"><!-- col-md-3 Starts -->
+    <div class="col-md-3"><!-- col-md-3 Starts -->
 
-<?php include("includes/sidebar.php"); ?>
+      <?php include("includes/sidebar.php"); ?>
 
-</div><!-- col-md-3 Ends -->
+    </div><!-- col-md-3 Ends -->
 
-<div class="col-md-9" ><!-- col-md-9 Starts --->
+    <div class="row"><!-- col-md-9 Starts --->
 
 
-<?php getProducts(); ?>
+      <?php getProducts($db, $aMan, $aPCat, $aCat); ?>
 
-</div><!-- row Ends -->
+    </div><!-- row Ends -->
 
-<center><!-- center Starts -->
+    <center><!-- center Starts -->
 
-<ul class="pagination" ><!-- pagination Starts -->
 
-<?php getPaginator(); ?>
-
-</ul><!-- pagination Ends -->
-
-</center><!-- center Ends -->
+    </center><!-- center Ends -->
 
 
 
-</div><!-- col-md-9 Ends --->
+  </div><!-- col-md-9 Ends --->
 
 
 
@@ -77,279 +194,262 @@ include("includes/main.php");
 <script src="js/bootstrap.min.js"></script>
 
 <script>
+  $(document).ready(function() {
 
-$(document).ready(function(){
+    /// Hide And Show Code Starts ///
 
-/// Hide And Show Code Starts ///
+    $('.nav-toggle').click(function() {
 
-$('.nav-toggle').click(function(){
+      $(".panel-collapse,.collapse-data").slideToggle(700, function() {
 
-$(".panel-collapse,.collapse-data").slideToggle(700,function(){
+        if ($(this).css('display') == 'none') {
 
-if($(this).css('display')=='none'){
+          $(".hide-show").html('Show');
 
-$(".hide-show").html('Show');
+        } else {
 
-}
-else{
+          $(".hide-show").html('Hide');
 
-$(".hide-show").html('Hide');
+        }
 
-}
+      });
 
-});
+    });
 
-});
+    /// Hide And Show Code Ends ///
 
-/// Hide And Show Code Ends ///
+    /// Search Filters code Starts ///
 
-/// Search Filters code Starts ///
+    $(function() {
 
-$(function(){
+      $.fn.extend({
 
-$.fn.extend({
+        filterTable: function() {
 
-filterTable: function(){
+          return this.each(function() {
 
-return this.each(function(){
+            $(this).on('keyup', function() {
 
-$(this).on('keyup', function(){
+              var $this = $(this),
 
-var $this = $(this),
+                search = $this.val().toLowerCase(),
 
-search = $this.val().toLowerCase(),
+                target = $this.attr('data-filters'),
 
-target = $this.attr('data-filters'),
+                handle = $(target),
 
-handle = $(target),
+                rows = handle.find('li a');
 
-rows = handle.find('li a');
+              if (search == '') {
 
-if(search == '') {
+                rows.show();
 
-rows.show();
+              } else {
 
-} else {
+                rows.each(function() {
 
-rows.each(function(){
+                  var $this = $(this);
 
-var $this = $(this);
+                  $this.text().toLowerCase().indexOf(search) === -1 ? $this.hide() : $this.show();
 
-$this.text().toLowerCase().indexOf(search) === -1 ? $this.hide() : $this.show();
+                });
 
-});
+              }
 
-}
+            });
 
-});
+          });
 
-});
+        }
 
-}
+      });
 
-});
+      $('[data-action="filter"][id="dev-table-filter"]').filterTable();
 
-$('[data-action="filter"][id="dev-table-filter"]').filterTable();
+    });
 
-});
+    /// Search Filters code Ends ///
 
-/// Search Filters code Ends ///
-
-});
-
-
-
+  });
 </script>
 
 
 <script>
+  $(document).ready(function() {
 
+    // getProducts Function Code Starts
 
-$(document).ready(function(){
+    function getProducts($db, $aMan, $aPCat, $aCat) {
 
-  // getProducts Function Code Starts
+      // Manufacturers Code Starts
 
-  function getProducts(){
+      var sPath = '';
 
-  // Manufacturers Code Starts
+      var aInputs = $('li').find('.get_manufacturer');
 
-    var sPath = '';
+      var aKeys = Array();
 
-var aInputs = $('li').find('.get_manufacturer');
+      var aValues = Array();
 
-var aKeys = Array();
+      iKey = 0;
 
-var aValues = Array();
+      $.each(aInputs, function(key, oInput) {
 
-iKey = 0;
+        if (oInput.checked) {
 
-$.each(aInputs,function(key,oInput){
+          aKeys[iKey] = oInput.value
 
-if(oInput.checked){
+        };
 
-aKeys[iKey] =  oInput.value
+        iKey++;
 
-};
+      });
 
-iKey++;
+      if (aKeys.length > 0) {
 
-});
+        var sPath = '';
 
-if(aKeys.length>0){
+        for (var i = 0; i < aKeys.length; i++) {
 
-var sPath = '';
+          sPath = sPath + 'man[]=' + aKeys[i] + '&';
 
-for(var i = 0; i < aKeys.length; i++){
+        }
 
-sPath = sPath + 'man[]=' + aKeys[i]+'&';
+      }
 
-}
+      // Manufacturers Code ENDS
 
-}
+      // Products Categories Code Starts
 
-// Manufacturers Code ENDS
+      var aInputs = Array();
 
-// Products Categories Code Starts
+      var aInputs = $('li').find('.get_p_cat');
 
-var aInputs = Array();
+      var aKeys = Array();
 
-var aInputs = $('li').find('.get_p_cat');
+      var aValues = Array();
 
-var aKeys = Array();
+      iKey = 0;
 
-var aValues = Array();
+      $.each(aInputs, function(key, oInput) {
 
-iKey = 0;
+        if (oInput.checked) {
 
-$.each(aInputs,function(key,oInput){
+          aKeys[iKey] = oInput.value
 
-if(oInput.checked){
+        };
 
-aKeys[iKey] =  oInput.value
+        iKey++;
 
-};
+      });
 
-iKey++;
+      if (aKeys.length > 0) {
 
-});
+        for (var i = 0; i < aKeys.length; i++) {
 
-if(aKeys.length>0){
+          sPath = sPath + 'p_cat[]=' + aKeys[i] + '&';
 
-for(var i = 0; i < aKeys.length; i++){
+        }
 
-sPath = sPath + 'p_cat[]=' + aKeys[i]+'&';
+      }
 
-}
+      // Products Categories Code ENDS
 
-}
+      // Categories Code Starts
 
-// Products Categories Code ENDS
+      var aInputs = Array();
 
-   // Categories Code Starts
+      var aInputs = $('li').find('.get_cat');
 
-var aInputs = Array();
+      var aKeys = Array();
 
-var aInputs = $('li').find('.get_cat');
+      var aValues = Array();
 
-var aKeys  = Array();
+      iKey = 0;
 
-var aValues = Array();
+      $.each(aInputs, function(key, oInput) {
 
-iKey = 0;
+        if (oInput.checked) {
 
-    $.each(aInputs,function(key,oInput){
+          aKeys[iKey] = oInput.value
 
-    if(oInput.checked){
+        };
 
-    aKeys[iKey] =  oInput.value
+        iKey++;
 
-};
+      });
 
-    iKey++;
+      if (aKeys.length > 0) {
 
-});
+        for (var i = 0; i < aKeys.length; i++) {
 
-if(aKeys.length>0){
+          sPath = sPath + 'cat[]=' + aKeys[i] + '&';
 
-    for(var i = 0; i < aKeys.length; i++){
+        }
 
-    sPath = sPath + 'cat[]=' + aKeys[i]+'&';
+      }
 
-}
+      // Categories Code ENDS
 
-}
+      // Loader Code Starts
 
-   // Categories Code ENDS
+      $('#wait').html('<img src="images/load.gif">');
 
-   // Loader Code Starts
+      // Loader Code ENDS
 
-$('#wait').html('<img src="images/load.gif">');
+      // ajax Code Starts
 
-// Loader Code ENDS
+      $.ajax({
 
-// ajax Code Starts
+        url: "load.php",
 
-$.ajax({
+        method: "POST",
 
-url:"load.php",
+        data: sPath + 'sAction=getProducts',
 
-method:"POST",
+        success: function(data) {
 
-data: sPath+'sAction=getProducts',
+          $('#Products').html('');
 
-success:function(data){
+          $('#Products').html(data);
 
- $('#Products').html('');
+          $("#wait").empty();
 
- $('#Products').html(data);
+        }
 
- $("#wait").empty();
+      });
 
-}
+      // ajax Code Ends
 
-});
+    }
 
-    $.ajax({
-url:"load.php",
-method:"POST",
-data: sPath+'sAction=getPaginator',
-success:function(data){
-$('.pagination').html('');
-$('.pagination').html(data);
-}
+
+    // getProducts Function Code Ends
+
+    $('.get_manufacturer').click(function() {
+
+      getProducts($db, $aMan, $aPCat, $aCat);
 
     });
 
-// ajax Code Ends
 
-   }
+    $('.get_p_cat').click(function() {
 
-   // getProducts Function Code Ends
+      getProducts($db, $aMan, $aPCat, $aCat);
 
-$('.get_manufacturer').click(function(){
+    });
 
-getProducts();
+    $('.get_p_cat').click(function() {
 
-});
+      getProducts($db, $aMan, $aPCat, $aCat);
 
-
-  $('.get_p_cat').click(function(){
-
-getProducts();
-
-});
-
-$('.get_cat').click(function(){
-
-getProducts();
-
-});
+    });
 
 
- });
-
+  });
 </script>
 
 </body>
 
 </html>
+<?php $shop_php_included = true; ?>

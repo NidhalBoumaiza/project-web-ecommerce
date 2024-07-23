@@ -77,11 +77,11 @@ if (!isset($_SESSION['admin_email'])) {
 
                                 $i = 0;
 
-                                $get_orders = "select * from customer_orders";
+                                $get_orderss = "SELECT * FROM customer_orders WHERE order_status='Complete'";
 
-                                $run_orders = mysqli_query($con, $get_orders);
+                                $run_orderss = mysqli_query($con, $get_orderss);
 
-                                while ($row_orders = mysqli_fetch_array($run_orders)) {
+                                while ($row_orders = mysqli_fetch_array($run_orderss)) {
 
 
                                     $c_id = $row_orders['customer_id'];
@@ -127,21 +127,15 @@ if (!isset($_SESSION['admin_email'])) {
 
                                         <td><?php echo $order_date; ?></td>
 
-                                       
-
                                         <td>$<?php echo $due_amount; ?></td>
 
                                         <td>
                                             <?php
 
-                                            if ($order_status == 'pending') {
+                                            if ($order_status == 'Complete') {
 
-                                                echo $order_status = '<div style="color:red;">Pending</div>';
-                                            } else {
-
-                                                echo $order_status = 'Completed';
-                                            }
-
+                                                echo $order_status = '<div style="color:blue;">Complete</div>';
+                                            } 
 
                                             ?>
                                         </td>

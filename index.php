@@ -10,34 +10,34 @@ include("includes/main.php");
 ?>
 
 
-  <!-- Cover -->
-  <main>
-    <div class="hero">
-      <a href="shop.php" class="btn1">View all products
-</a>
-    </div>
-    <!-- Main -->
-    <div class="wrapper">
-            <h1>Featured Collection<h1>
-            
-      </div>
+<!-- Cover -->
+<main>
+  <div class="hero">
+    <a href="shop.php" class="btn btn-info" style="float:right; margin-right:10%;"><h3>View all products</h3>
+    </a>
+  </div>
+  <!-- Main -->
+  <div class="wrapper">
+    <h1>Featured Collection<h1>
+
+  </div>
 
 
 
-    <div id="content" class="container"><!-- container Starts -->
+  <div id="content" class="container"><!-- container Starts -->
 
     <div class="row"><!-- row Starts -->
 
-    <?php
+      <?php
 
-    getPro();
+      getProducts();
 
-    ?>
+      ?>
 
     </div><!-- row Ends -->
 
-    </div><!-- container Ends -->
-   
-</body>
+  </div><!-- container Ends -->
 
-</html>
+  </body>
+
+  </html>
